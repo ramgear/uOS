@@ -30,7 +30,7 @@
 
 /* Exported macro ------------------------------------------------------------*/
 
-#define	OS_ISR(name)	OS_EXTERN_C void ISR_##name(void)
+#define	OS_ISR_HANDLER(name)	OS_EXTERN_C void ISR_##name(void)
 
 #define	OS_ISR_EXTERN(name)							\
 	extern void ISR_##name(void);
@@ -38,14 +38,14 @@
 /* Exported functions --------------------------------------------------------*/
 
  /* Define Core Level ISR for Cortex-M4 */
- /*OS_ISR_EXTERN(Reset_Handler)
+ OS_ISR_EXTERN(Reset_Handler)
  OS_ISR_EXTERN(NMI_Handler)
  OS_ISR_EXTERN(HardFault_Handler)
  OS_ISR_EXTERN(MemManage_Handler)
  OS_ISR_EXTERN(BusFault_Handler)
  OS_ISR_EXTERN(UsageFault_Handler)
  OS_ISR_EXTERN(SVC_Handler)
- OS_ISR_EXTERN(DebugMon_Handler)*/
+ OS_ISR_EXTERN(DebugMon_Handler)
  OS_ISR_EXTERN(PendSV_Handler)
  OS_ISR_EXTERN(SysTick_Handler)
 
@@ -141,9 +141,6 @@ OS_ISR_Exit(void);
 
 bool
 OS_ISR_IsNesting(void);
-
-u32
-OS_ISR_GetVectorTable(void);
 
 #ifdef __cplusplus
 }

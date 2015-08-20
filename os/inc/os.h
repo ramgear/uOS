@@ -43,13 +43,7 @@ OS_Start(void);
 bool
 OS_IsRunning(void);
 
-extern u32				sOS_Running;
-extern os_priority_t	sOS_HighRdyPrio;
-extern os_priority_t	sOS_CurrentPrio;
-extern os_tcb_t			*spOS_CurentTCB;
-extern os_tcb_t			*spOS_HighRdyTCB;
-
-extern u32				sOS_IdleCtr;
+extern u32				gOS_Running;
 
 #ifdef __cplusplus
 }

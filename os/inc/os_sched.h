@@ -48,6 +48,9 @@ OS_Sched_RoundRobbin(os_tcb_list_t *pplist_rdy);
 void
 OS_Sched_ReSched(void);
 
+extern os_tcb_t	*gOS_CurrentTCB;
+extern os_tcb_t	*gOS_HighRdyTCB;
+
 #ifdef __cplusplus
 }
 #endif

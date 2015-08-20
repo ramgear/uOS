@@ -19,7 +19,7 @@
 /* Private macro -------------------------------------------------------------*/
 
 /* Private variables ---------------------------------------------------------*/
-u32				sOS_Running;
+u32				gOS_Running;
 os_priority_t	sOS_HighRdyPrio;
 os_priority_t	sOS_CurrentPrio;
 os_tcb_t		*spOS_CurentTCB;
@@ -43,7 +43,7 @@ OS_Init(void)
 
 	OS_CPU_Init();
 
-	sOS_Running		= OS_FALSE;
+	gOS_Running		= OS_FALSE;
 	sOS_CurrentPrio	= 0;
 	sOS_HighRdyPrio	= 0;
 	spOS_CurentTCB	= NULL;
@@ -62,14 +62,14 @@ OS_Init(void)
 void
 OS_Start(void)
 {
-	sOS_Running		= OS_TRUE;
+	gOS_Running		= OS_TRUE;
 
 	sOS_HighRdyPrio	= OS_Prio_GetHighRdy();
 	sOS_CurrentPrio	= sOS_HighRdyPrio;
 	spOS_HighRdyTCB	= OS_Task_GetTCBRdy(sOS_CurrentPrio);
 	spOS_CurentTCB	= spOS_HighRdyTCB;
 
-	OS_CPU_StartHighRdy();
+	OS_CPU_StartCtxSw();
 }
 
 void
@@ -86,7 +86,7 @@ OS_IdleTask(void *arg)
 bool
 OS_IsRunning(void)
 {
-	return (sOS_Running != OS_FALSE);
+	return (gOS_Running != OS_FALSE);
 }
 
 /*****************************END OF FILE**************************************/

@@ -23,6 +23,7 @@
 
 /* Exported types ------------------------------------------------------------*/
 
+
 /* Exported constants --------------------------------------------------------*/
 
 #if  !defined(OS_CPU_EXCEPT_STK_SIZE)
@@ -37,6 +38,10 @@
 #define OS_CPU_SR_ALLOC()			u32 cpu_sr;
 #define	OS_CPU_ENTER_CRITICAL()		cpu_sr = OS_CPU_EnterCritical();
 #define	OS_CPU_EXIT_CRITICAL()		OS_CPU_ExitCritical(cpu_sr);
+
+#define	OS_CPU_IntEn()			__asm volatile ("cpsie i")
+#define	OS_CPU_IntDis()			__asm volatile ("cpsid i")
+
 
 /* Exported functions --------------------------------------------------------*/
 
@@ -60,8 +65,17 @@ OS_CPU_InitStack(os_tcb_t *pptcb);
  *
  * @note	This function is implemented in assembly to access low level register.
  */
-u32
-OS_CPU_EnterCritical(void);
+static inline CPU_DATA
+__attribute__((always_inline))
+OS_CPU_EnterCritical(void)
+{
+	register CPU_DATA sr;
+
+	__asm volatile ("MRS %0, primask\n" : "=r" (sr) );
+	__asm volatile ("cpsid i");
+
+	return(sr);
+}
 
 /**
  * @brief	Exit from critical section.
@@ -71,8 +85,12 @@ OS_CPU_EnterCritical(void);
  *
  * @note	This function is implemented in assembly to access low level register.
  */
-void
-OS_CPU_ExitCritical(u32 sr);
+static inline void
+__attribute__((always_inline))
+OS_CPU_ExitCritical(register CPU_DATA sr)
+{
+	__asm volatile ("MSR primask,%0\n" : : "r" (sr) );
+}
 
 /**
  * @brief	Perform context switch.
@@ -86,17 +104,33 @@ void
 OS_CPU_CtxSw(void);
 
 
-u32
-OS_CPU_LeadCountZeros(u32 data);
+static inline CPU_DATA
+__attribute__((always_inline))
+OS_CPU_LeadCountZeros(register CPU_DATA sr)
+{
+	__asm volatile ("CLZ %0,%0\n" : "+r" (sr) );
 
-u32
-OS_CPU_TailCountZeros(u32 data);
+	return sr;
+}
+
+static inline CPU_DATA
+__attribute__((always_inline))
+OS_CPU_TailCountZeros(register CPU_DATA sr)
+{
+	__asm volatile (
+			"RBIT %0,%0\n"
+			"CLZ %0,%0\n"
+			: "+r" (sr)
+			);
+
+	return sr;
+}
 
 void
 OS_CPU_CtxSwHook(void);
 
 void
-OS_CPU_StartHighRdy(void);
+OS_CPU_StartCtxSw(void);
 
 /**
  * @brief	Handle PendSV Exception.

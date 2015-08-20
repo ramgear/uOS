@@ -135,6 +135,64 @@ OS_ISR_ATT_WEAK_ALIAS(CRYP_IRQHandler)
 OS_ISR_ATT_WEAK_ALIAS(HASH_RNG_IRQHandler)
 OS_ISR_ATT_WEAK_ALIAS(FPU_IRQHandler)
 
+/* OS interrupt service routine implementation */
+
+#define OS_DEBUG_BKPT()  asm volatile ("bkpt 0")
+
+void
+OS_ISR_Reset_Handler(void)
+{
+  Reset_Handler();
+}
+
+void
+OS_ISR_NMI_Handler(void)
+{
+  NMI_Handler();
+}
+
+void
+__attribute__ ((section(".after_vectors"),used))
+OS_ISR_HardFault_Handler(void)
+{
+  HardFault_Handler();
+}
+
+void
+__attribute__ ((section(".after_vectors"),used))
+OS_ISR_MemManage_Handler(void)
+{
+  MemManage_Handler();
+}
+
+void
+__attribute__ ((section(".after_vectors"),used))
+OS_ISR_BusFault_Handler(void)
+{
+  BusFault_Handler();
+}
+
+void
+__attribute__ ((section(".after_vectors"),used))
+OS_ISR_UsageFault_Handler(void)
+{
+  UsageFault_Handler();
+}
+
+void
+__attribute__ ((section(".after_vectors"),used))
+OS_ISR_SVC_Handler(void)
+{
+  SVC_Handler();
+}
+
+void
+__attribute__ ((section(".after_vectors"),used))
+OS_ISR_DebugMon_Handler(void)
+{
+  DebugMon_Handler();
+}
+
 /* Private variables ---------------------------------------------------------*/
 #if (OS_ISR_VECTOR_TABLE_EN != OS_DISABLE)
 extern unsigned int _estack;
@@ -144,18 +202,18 @@ os_isr_t	gOS_ISRVectorTable[] =
 {
 			  /* ISR Core Level - Cortex-M4 */
 			  (os_isr_t) &_estack,                      // The initial stack pointer
-			  Reset_Handler,                 	// The reset handler
-			  NMI_Handler,                    	// The NMI handler
-			  HardFault_Handler,                // The hard fault handler
-			  MemManage_Handler,               	// The MPU fault handler
-			  BusFault_Handler,            		// The bus fault handler
-			  UsageFault_Handler,          		// The usage fault handler
+			  OS_ISR(Reset_Handler),                 	// The reset handler
+			  OS_ISR(NMI_Handler),                    	// The NMI handler
+			  OS_ISR(HardFault_Handler),                // The hard fault handler
+			  OS_ISR(MemManage_Handler),               	// The MPU fault handler
+			  OS_ISR(BusFault_Handler),            		// The bus fault handler
+			  OS_ISR(UsageFault_Handler),          		// The usage fault handler
 		      0,                                        // Reserved
 		      0,                                        // Reserved
 		      0,                                        // Reserved
 		      0,                                        // Reserved
-			  SVC_Handler,                      // SVCall handler
-			  DebugMon_Handler,             	// Debug monitor handler
+		      OS_ISR(SVC_Handler),                      // SVCall handler
+			     OS_ISR(DebugMon_Handler),             	// Debug monitor handler
 		      0,                                        // Reserved
 			  OS_ISR(PendSV_Handler),                  	// The PendSV handler
 			  OS_ISR(SysTick_Handler),       			// The SysTick handler

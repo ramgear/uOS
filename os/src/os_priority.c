@@ -10,6 +10,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "os_priority.h"
+#include "os_cpu.h"
 
 /* Private typedef -----------------------------------------------------------*/
 
@@ -23,8 +24,8 @@
 static u32				sOS_PrioMaskRdy;
 static u32				sOS_PrioMaskPend;
 
-static os_priority_t	sOS_CurPrio 	= OS_PRIO_NUM;
-static os_priority_t	sOS_HighRdyPrio = OS_PRIO_NUM;
+os_priority_t	gOS_CurrentPrio = OS_PRIO_NUM;
+os_priority_t	gOS_HighRdyPrio = OS_PRIO_NUM;
 
 /* Private function prototypes -----------------------------------------------*/
 u32	OS_CPU_TailCountZeros(u32);
@@ -75,15 +76,15 @@ OS_Prio_GetHighRdy(void)
  os_priority_t
  OS_Prio_GetCurrentPriority(void)
  {
-	 return sOS_CurPrio;
+	 return gOS_CurrentPrio;
  }
 
  boolean
  OS_Prio_IsHigherRdy(void)
  {
-	 sOS_HighRdyPrio = OS_Prio_GetHighRdy();
+	 gOS_HighRdyPrio = OS_Prio_GetHighRdy();
 
-	 return OS_Prio_IsHigher(sOS_HighRdyPrio, sOS_CurPrio);
+	 return OS_Prio_IsHigher(gOS_HighRdyPrio, gOS_CurrentPrio);
  }
 
 /*****************************END OF FILE**************************************/

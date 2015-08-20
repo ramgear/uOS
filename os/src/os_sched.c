@@ -24,8 +24,8 @@
 /* Private variables ---------------------------------------------------------*/
 static u32	sSchedNestingCtr	= 0u;
 
-static os_tcb_t	*sOS_CurTCB = NULL;
-static os_tcb_t	*sOS_HRdyTCB = NULL;
+os_tcb_t	*gOS_CurrentTCB = NULL;
+os_tcb_t	*gOS_HighRdyTCB = NULL;
 
 /* Private function prototypes -----------------------------------------------*/
 
@@ -67,7 +67,7 @@ OS_Sched_PrepareHighReady(void)
 		cur = OS_Prio_GetCurrentPriority();
 		high = OS_Prio_GetHighRdy();
 
-		sOS_HRdyTCB = NULL;
+		gOS_HighRdyTCB = NULL;
 		return true;
 	}
 

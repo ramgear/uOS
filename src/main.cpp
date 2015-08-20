@@ -173,7 +173,7 @@ main(int argc, char* argv[])
 
 static volatile u32 sTicks = 0;
 
-OS_ISR(SysTick_Handler)
+OS_ISR_HANDLER(SysTick_Handler)
 {
 	++sTicks;
 	Timer::tick();

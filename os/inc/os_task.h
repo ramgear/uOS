@@ -23,7 +23,7 @@
 /* Exported types ------------------------------------------------------------*/
 
 typedef	void (*task_t)(void *parg);
-typedef	u32	stack_t;
+typedef	OS_DATA	stack_t;
 
  /**
   * @brief	Task Control Block type.

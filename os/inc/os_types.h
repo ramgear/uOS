@@ -15,6 +15,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include <stdbool.h>
 #include "os_defines.h"
+#include "cpu_core.h"
 
 #ifdef __cplusplus
  extern "C" {
@@ -31,6 +32,9 @@
  typedef signed   int   s32;                   /* Signed   32 bit quantity                           */
  typedef float          f32;                   /* Single precision floating point                    */
  typedef double         f64;                   /* Double precision floating point                    */
+
+typedef CPU_DATA	OS_DATA;
+typedef CPU_REG		OS_REG;
 
 #if !defined(NULL)
 #define NULL	0
