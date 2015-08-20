@@ -60,9 +60,6 @@
  OS_Prio_SetPending(os_priority_t prio, os_prio_stat_t stat);
 
 
- extern os_priority_t	gOS_CurrentPrio;
- extern os_priority_t	gOS_HighRdyPrio;
-
 #ifdef __cplusplus
 }
 #endif

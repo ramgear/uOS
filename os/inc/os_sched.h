@@ -36,20 +36,8 @@ OS_Sched_Unlock(void);
 bool
 OS_Sched_IsLocking(void);
 
-bool
-OS_Sched_PrepareHighReady(void);
-
 void
 OS_Sched_TimeTickSched(void);
-
-void
-OS_Sched_RoundRobbin(os_tcb_list_t *pplist_rdy);
-
-void
-OS_Sched_ReSched(void);
-
-extern os_tcb_t	*gOS_CurrentTCB;
-extern os_tcb_t	*gOS_HighRdyTCB;
 
 #ifdef __cplusplus
 }

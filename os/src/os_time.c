@@ -42,15 +42,12 @@ OS_Time_Delay(u32 ticks)
 	if (ticks > 0u)
 	{
 		OS_CPU_EnterCritical();
-		//pltcb = spOS_CurentTCB;
 
 		pltcb->uDelay = ticks;
 		OS_Prio_SetReady(pltcb->tPrio, PRIO_CLR);
 		OS_Prio_SetPending(pltcb->tPrio, PRIO_SET);
 
 		OS_CPU_EnterCritical();
-
-		OS_Sched_ReSched();
 	}
 }
 

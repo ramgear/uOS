@@ -111,6 +111,7 @@ main(int argc, char* argv[])
 		  , TASKx_TASK_STACK_SIZE
 		  , TASK1_TASK_PRIORITY
 		  , "Task 1"
+		  , OS_TASK_OPT_DEFAULT
 		  );
 
   OS_Task_Create(
@@ -119,6 +120,7 @@ main(int argc, char* argv[])
 		  , TASKx_TASK_STACK_SIZE
 		  , TASK2_TASK_PRIORITY
 		  , "Task 2"
+		  , OS_TASK_OPT_DEFAULT
 		  );
 
   OS_Task_Create(
@@ -127,6 +129,7 @@ main(int argc, char* argv[])
 		  , TASKx_TASK_STACK_SIZE
 		  , TASK3_TASK_PRIORITY
 		  , "Task 3"
+		  , OS_TASK_OPT_DEFAULT
 		  );
 
   OS_Task_Create(
@@ -135,6 +138,7 @@ main(int argc, char* argv[])
 		  , TASKx_TASK_STACK_SIZE
 		  , TASK4_TASK_PRIORITY
 		  , "Task 4"
+		  , OS_TASK_OPT_DEFAULT
 		  );
 
   OS_Task_Create(
@@ -143,6 +147,7 @@ main(int argc, char* argv[])
 		  , TASKx_TASK_STACK_SIZE
 		  , TASK5_TASK_PRIORITY
 		  , "Task 5"
+		  , OS_TASK_OPT_DEFAULT
 		  );
 
   OS_Task_Create(
@@ -151,6 +156,7 @@ main(int argc, char* argv[])
 		  , TASKx_TASK_STACK_SIZE
 		  , TASK6_TASK_PRIORITY
 		  , "Task 6"
+		  , OS_TASK_OPT_DEFAULT
 		  );
 
   /* Start OS */

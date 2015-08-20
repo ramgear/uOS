@@ -11,6 +11,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "os.h"
 #include "os_cpu.h"
+#include "os_conf.h"
 
 /* Private typedef -----------------------------------------------------------*/
 
@@ -28,6 +29,8 @@ u32				sOS_IdleCtr;
 
 static stack_t sOSIdleStk[OS_TASK_IDLE_STK_SIZE];
 
+extern CPU_DATA __Main_Stack_Size;
+
 /* Private function prototypes -----------------------------------------------*/
 
 void
@@ -38,6 +41,8 @@ OS_IdleTask(void *arg);
 void
 OS_Init(void)
 {
+	stack_t	*stk;
+	task_t	task;
 
 	OS_Task_Init();
 
@@ -56,7 +61,23 @@ OS_Init(void)
 			, OS_TASK_IDLE_STK_SIZE
 			, OS_TASK_IDLE_PRIO
 			, "OS Idle Task"
+			, OS_TASK_OPT_INIT_STK
 			);
+
+	/* Create current main task */
+	stk = (stack_t	*)CPU_CORE_GetPSP();
+	task = (task_t)CPU_CORE_GetLR();
+
+	OS_Task_Create(
+			task
+			, stk
+			, __Main_Stack_Size
+			, OS_CFG_USER_MAIN_TASK_PRIORITY
+			, "Main Task"
+			  , OS_TASK_OPT_NONE
+			);
+
+	OS_CPU_StartCtxSw();
 }
 
 void

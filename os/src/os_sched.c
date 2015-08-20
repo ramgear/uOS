@@ -27,17 +27,21 @@ static u32	sSchedNestingCtr	= 0u;
 os_tcb_t	*gOS_CurrentTCB = NULL;
 os_tcb_t	*gOS_HighRdyTCB = NULL;
 
+extern os_priority_t gOS_HighRdyPrio;
+extern os_priority_t gOS_CurrentPrio;
+
 /* Private function prototypes -----------------------------------------------*/
+void
+OS_Sched_ChkCtxWs(void);
+
+void
+OS_Sched_RoundRobin( void );
 
 /* Private functions ---------------------------------------------------------*/
 inline void
 OS_Sched_Lock(void)
 {
-	OS_CPU_SR_ALLOC();
-
-	OS_CPU_ENTER_CRITICAL();
 	++sSchedNestingCtr;
-	OS_CPU_EXIT_CRITICAL();
 }
 
 inline void
@@ -56,29 +60,10 @@ OS_Sched_IsLocking(void)
 	return (sSchedNestingCtr != 0);
 }
 
-bool
-OS_Sched_PrepareHighReady(void)
-{
-	os_priority_t cur;
-	os_priority_t high;
-
-	if(OS_Prio_IsHigherRdy())
-	{
-		cur = OS_Prio_GetCurrentPriority();
-		high = OS_Prio_GetHighRdy();
-
-		gOS_HighRdyTCB = NULL;
-		return true;
-	}
-
-	return false;
-}
-
 void
 OS_Sched_TimeTickSched(void)
 {
 	os_tcb_list_t *pllist;
-	os_tcb_list_t *pllist_rdy;
 	os_tcb_t *pltcb;
 	u32	count;
 
@@ -88,16 +73,9 @@ OS_Sched_TimeTickSched(void)
 	if(!OS_IsRunning())
 		return;
 
-	/* Check if call from ISR */
-	if(OS_ISR_IsNesting())
-		return;
-
-	/* Check if scheduler is locked */
-	if(OS_Sched_IsLocking())
-		return;
-
 	OS_CPU_ENTER_CRITICAL();
 
+	/* Check delay pending task */
 	pllist	= OS_Task_GetPendList();
 	count = pllist->count;
 	pltcb	= pllist->pHead;
@@ -116,74 +94,46 @@ OS_Sched_TimeTickSched(void)
 		pltcb = pltcb->pNext;
 	}
 
-	OS_CPU_EXIT_CRITICAL();
-
-	OS_Sched_ReSched();	/* Re-scheduler */
-}
-
-void
-OS_Sched_ReSched(void)
-{
-	OS_CPU_SR_ALLOC();
-
-	/* Check OS running */
-	if(!OS_IsRunning())
-		return;
-
-	/* Check if call from ISR */
-	if(OS_ISR_IsNesting())
-		return;
-
-	/* Check if scheduler is locked */
-	if(OS_Sched_IsLocking())
-		return;
-
-	OS_CPU_ENTER_CRITICAL();
-
-	if(OS_Sched_PrepareHighReady())	/* Higher priority ready ? */
-	{
-		/* Perform context switch */
-		OS_CPU_CtxSw();
-	}
+	/* Yield Round Robin task */
+	OS_Sched_RoundRobin();
 
 	OS_CPU_EXIT_CRITICAL();
 
+	OS_Sched_ChkCtxWs();
 }
 
 void
-OS_Sched_RoundRobbin( os_tcb_list_t *pplist_rdy )
+OS_Sched_RoundRobin( void )
 {
 	OS_CPU_SR_ALLOC();
 
-	/* Check OS running */
-	if(!OS_IsRunning())
-		return;
-
-	/* Check if call from ISR */
-	if(OS_ISR_IsNesting())
-		return;
-
-	/* Check if scheduler is locked */
-	if(OS_Sched_IsLocking())
-		return;
-
 	OS_CPU_ENTER_CRITICAL();
 
-	if(pplist_rdy->count != 0)
+	os_tcb_list_t *pllist = OS_Task_GetRdyList(gOS_CurrentPrio);
+
+	if(pllist->count != 0)
 	{
-		if(--pplist_rdy->pHead->uTimeRemain == 0 )
+		if(--pllist->pHead->uTimeRemain == 0 )
 		{
 			/* Reload time quanta */
-			pplist_rdy->pHead->uTimeRemain = pplist_rdy->pHead->uTimeQuanta;
+			pllist->pHead->uTimeRemain = pllist->pHead->uTimeQuanta;
 
 			/* Move to next ready TCB */
-			OS_List_MoveHeadFwd(pplist_rdy);
+			OS_List_MoveHeadFwd(pllist);
 		}
 	}
 
 	OS_CPU_EXIT_CRITICAL();
+}
 
-	OS_Sched_ReSched();		/* Re-scheduler */
+void
+OS_Sched_ChkCtxWs(void)
+{
+	if(OS_Prio_IsHigherRdy())
+	{
+		gOS_HighRdyTCB = OS_Task_GetTCBRdy(gOS_HighRdyPrio);
+		OS_CPU_CtxSw();
+	}
 }
 
 /*****************************END OF FILE**************************************/

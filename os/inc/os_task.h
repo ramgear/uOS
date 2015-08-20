@@ -25,6 +25,11 @@
 typedef	void (*task_t)(void *parg);
 typedef	OS_DATA	stack_t;
 
+#define	OS_TASK_OPT_NONE		0x00
+#define	OS_TASK_OPT_INIT_STK	0x01
+
+#define	OS_TASK_OPT_DEFAULT		OS_TASK_OPT_NONE
+
  /**
   * @brief	Task Control Block type.
   */
@@ -72,9 +77,10 @@ os_tcb_t *
 OS_Task_Create(
 		 task_t				ptTask
 		 ,stack_t			*ppStack
-		 ,u32				puStkSize
+		 ,CPU_DATA			puStkSize
 	     ,os_priority_t		ptPrio
 		 ,const char		*ppTaskName
+		 , CPU_DATA			opt
 		 );
 
 void
@@ -82,6 +88,9 @@ OS_Task_Return (void);
 
 os_tcb_t *
 OS_Task_GetTCBRdy(os_priority_t prio);
+
+os_tcb_list_t *
+OS_Task_GetRdyList(os_priority_t prio);
 
 os_tcb_list_t *
 OS_Task_GetPendList(void);

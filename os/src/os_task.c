@@ -16,6 +16,8 @@
 #include "os_isr.h"
 #include "os_sched.h"
 #include "os.h"
+#include "cpu_core.h"
+#include "os_conf.h"
 
 /* Private typedef -----------------------------------------------------------*/
 
@@ -29,6 +31,7 @@ static os_tcb_list_t	sOS_TCBFreeList;
 static os_tcb_list_t	sOS_TCBRdyList[OS_PRIO_NUM];
 static os_tcb_list_t	sOS_TCBPendList;
 
+CPU_DATA				gOS_TaskCount = 0;
 
 /* Private function prototypes -----------------------------------------------*/
 
@@ -49,12 +52,13 @@ OS_Task_Init(void)
 }
 
 os_tcb_t *
-OS_Task_Create(
+OS_Task_SysCreate(
 		 task_t				ptTask
 		 ,stack_t			*ppStack
 		 ,u32				puStkSize
 	     ,os_priority_t		ptPrio
 		 ,const char		*ppTaskName
+		 , CPU_DATA			opt
 		 )
 {
 	OS_CPU_SR_ALLOC();
@@ -83,7 +87,8 @@ OS_Task_Create(
 		 * Initial process stack frame.
 		 * This function must implement in os_cpu.h due to it is processor specific.
 		 */
-		OS_CPU_InitStack(pltcb);
+		if((opt & OS_TASK_OPT_INIT_STK) != OS_TASK_OPT_NONE)
+			OS_CPU_InitStack(pltcb);
 
 		/* Set ready priority */
 		OS_Prio_SetReady(pltcb->tPrio, PRIO_SET);
@@ -91,8 +96,35 @@ OS_Task_Create(
 		/* Add to ready list */
 		OS_List_InsertPriority(&sOS_TCBRdyList[pltcb->tPrio], pltcb);
 
+		/* Increase task counter */
+		++gOS_TaskCount;
+
 		OS_CPU_EXIT_CRITICAL();	/* Resume interrupt */
 	}
+
+	return pltcb;
+}
+
+os_tcb_t *
+OS_Task_Create(
+		 task_t				ptTask
+		 ,stack_t			*ppStack
+		 ,u32				puStkSize
+	     ,os_priority_t		ptPrio
+		 ,const char		*ppTaskName
+		 , CPU_DATA			opt
+		 )
+{
+	os_tcb_t *pltcb = NULL;
+
+	pltcb = OS_Task_SysCreate(
+			ptTask
+			, ppStack
+			, puStkSize
+			, ptPrio
+			, ppTaskName
+			, opt
+			);
 
 	return pltcb;
 }
@@ -123,6 +155,12 @@ os_tcb_list_t *
 OS_Task_GetPendList(void)
 {
 	return (&sOS_TCBPendList);
+}
+
+os_tcb_list_t *
+OS_Task_GetRdyList(os_priority_t prio)
+{
+	return (&sOS_TCBRdyList[prio]);
 }
 
 void
